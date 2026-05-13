@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATTIVITÀ DI VOLONTARIATO IN AMBITO SANITARIO</title>
-    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-   
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +22,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-center">
                     <li class="nav-item">
                         <a href="introduzione.html" class="nav-link active" data-section="introduzione">Introduzione</a>
                     </li>
@@ -41,11 +38,35 @@
                     <li class="nav-item">
                         <a href="primo-soccorso.html" class="nav-link" data-section="primo-soccorso">Primo Soccorso e Emergenze</a>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Visibili solo se NON loggato -->
+                    <li class="nav-item" id="nav-registrazione">
                         <a href="registrazione.html" class="nav-link" data-section="registrazione">Registrazione</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="nav-accesso">
                         <a href="accesso.html" class="nav-link" data-section="accesso">Accesso</a>
+                    </li>
+
+                    <!-- Visibili solo se loggato come UTENTE -->
+                    <li class="nav-item d-none" id="nav-area-riservata">
+                        <a href="area_riservata.php" class="nav-link">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span id="nav-nome-utente">Area Riservata</span>
+                        </a>
+                    </li>
+
+                    <!-- Visibili solo se loggato come ADMIN -->
+                    <li class="nav-item d-none" id="nav-admin">
+                        <a href="admin.php" class="nav-link text-warning">
+                            <i class="fas fa-user-shield me-1"></i>Pannello Admin
+                        </a>
+                    </li>
+
+                    <!-- Visibili solo se loggato (utente O admin) -->
+                    <li class="nav-item d-none" id="nav-logout">
+                        <a href="logout.php" class="nav-link text-warning">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -54,9 +75,7 @@
 </header>
 
 <main class="py-5">
-    <div class="container" id="content-container">
-   
-    </div>
+    <div class="container" id="content-container"></div>
 </main>
 
 <footer class="bg-dark text-white py-4 mt-5">
@@ -82,9 +101,7 @@
     </div>
 </footer>
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
 <script src="script.js"></script>
 </body>
 </html>

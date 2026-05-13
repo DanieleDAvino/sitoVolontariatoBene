@@ -1,4 +1,6 @@
 <?php
+session_start(); // ← legge la sessione
+
 // ── Config DB ──────────────────────────────────────────────────────────────────
 $db_host = 'localhost';
 $db_name = 'volontariato';
@@ -12,40 +14,42 @@ try {
     die('Errore connessione DB: ' . $e->getMessage());
 }
 
-// ── Controllo accesso ──────────────────────────────────────────────────────────
-// Se non c'è il parametro verified, redirect al login
-if (!isset($_GET['access']) || $_GET['access'] !== 'verified') {
+// ── Controllo accesso tramite sessione ─────────────────────────────────────────
+// Se sta arrivando dal form di login, verifica le credenziali
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['azione'] ?? '') === 'LOGIN') {
+    $email = trim($_POST['email'] ?? '');
+    $psswd = $_POST['psswd'] ?? '';
 
-    // Se sta arrivando dal form di login, verifica le credenziali
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['azione'] ?? '') === 'LOGIN') {
-        $email = trim($_POST['email'] ?? '');
-        $psswd = $_POST['psswd'] ?? '';
-
-        if (empty($email) || empty($psswd)) {
-            header('Location: admin-login.php?errore=vuoti');
-            exit;
-        }
-
-        $stmt = $pdo->prepare("SELECT * FROM admin WHERE email = :email");
-        $stmt->execute([':email' => $email]);
-        $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$admin || !password_verify($psswd, $admin['psswd'])) {
-            header('Location: admin-login.php?errore=credenziali');
-            exit;
-        }
-
-        // Credenziali ok → redirect alla dashboard con access=verified
-        header('Location: admin.php?access=verified');
+    if (empty($email) || empty($psswd)) {
+        header('Location: admin-login.php?errore=vuoti');
         exit;
     }
 
-    // Nessun accesso → torna al login
+    $stmt = $pdo->prepare("SELECT * FROM admin WHERE email = :email");
+    $stmt->execute([':email' => $email]);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$admin || !password_verify($psswd, $admin['psswd'])) {
+        header('Location: admin-login.php?errore=credenziali');
+        exit;
+    }
+
+    // Credenziali ok → salva in sessione e redirect alla dashboard
+    $_SESSION['ruolo']       = 'admin';
+    $_SESSION['admin_id']    = $admin['id'];
+    $_SESSION['admin_email'] = $admin['email'];
+
+    header('Location: admin.php');
+    exit;
+}
+
+// Nessuna sessione admin attiva → torna al login
+if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] !== 'admin') {
     header('Location: admin-login.php');
     exit;
 }
 
-// ── Da qui in poi: accesso verificato ─────────────────────────────────────────
+// ── Da qui in poi: accesso verificato tramite sessione ─────────────────────────
 
 function pulisci($dato) {
     return htmlspecialchars(trim($dato ?? ''), ENT_QUOTES, 'UTF-8');
@@ -103,7 +107,6 @@ switch ($azione) {
         break;
 
     case 'READ':
-        // ricerca per ID
         break;
 }
 
@@ -138,7 +141,6 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
         }
         .admin-table td { padding: 11px 14px; vertical-align: middle; font-size: 0.88rem; }
         .admin-table tbody tr:hover { background-color: #f0f5ff; }
-
         .badge-area {
             background: #e8f0fe; color: #2c62b5;
             border: 1px solid #c5d8f8;
@@ -206,7 +208,8 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="admin-login.php" class="nav-link text-warning">
+                        <!-- logout.php distrugge la sessione -->
+                        <a href="logout.php" class="nav-link text-warning">
                             <i class="fas fa-sign-out-alt me-1"></i>Logout
                         </a>
                     </li>
@@ -221,11 +224,12 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
     <div class="container">
         <div class="content">
 
-            <!-- Titolo -->
             <h1 class="mb-1">
                 <i class="fas fa-users text-primary me-2"></i>Gestione Volontari
             </h1>
-            <p class="text-muted mb-4">Visualizza, modifica ed elimina le registrazioni</p>
+            <p class="text-muted mb-4">
+                Connesso come: <strong><?= htmlspecialchars($_SESSION['admin_email']) ?></strong>
+            </p>
 
             <?php if ($messaggio): ?>
                 <div class="alert alert-<?= $messaggio['tipo'] ?> alert-dismissible fade show" role="alert">
@@ -286,14 +290,14 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                 </div>
             </div>
 
-            <!-- Form modifica (appare solo se si clicca Modifica) -->
+            <!-- Form modifica -->
             <?php if ($volontario_da_modificare): ?>
             <div class="card border-primary shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Modifica Volontario — ID <?= $volontario_da_modificare['id'] ?></h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="admin.php?access=verified">
+                    <form method="POST" action="admin.php">
                         <input type="hidden" name="azione" value="UPDATE">
                         <input type="hidden" name="id" value="<?= $volontario_da_modificare['id'] ?>">
 
@@ -357,7 +361,7 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-1"></i>Salva modifiche
                             </button>
-                            <a href="admin.php?access=verified" class="btn btn-outline-secondary">Annulla</a>
+                            <a href="admin.php" class="btn btn-outline-secondary">Annulla</a>
                         </div>
                     </form>
                 </div>
@@ -368,7 +372,6 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                 <h5 class="mb-0 text-primary"><i class="fas fa-table me-2"></i>Elenco Volontari</h5>
                 <form method="GET" class="d-flex gap-2 align-items-center">
-                    <input type="hidden" name="access" value="verified">
                     <input type="hidden" name="azione" value="READ">
                     <input type="number" name="id_ricerca" class="form-control form-control-sm"
                            placeholder="Cerca per ID..." style="width:160px"
@@ -376,7 +379,7 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                     <button type="submit" class="btn btn-dark btn-sm">
                         <i class="fas fa-search me-1"></i>Cerca
                     </button>
-                    <a href="admin.php?access=verified" class="btn btn-outline-secondary btn-sm">Reset</a>
+                    <a href="admin.php" class="btn btn-outline-secondary btn-sm">Reset</a>
                 </form>
             </div>
 
@@ -416,11 +419,11 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                                 <td><span class="badge-area"><?= htmlspecialchars($AREA_LABEL[$r['area']] ?? $r['area']) ?></span></td>
                                 <td><span class="badge-disp"><?= htmlspecialchars($r['disponibilita']) ?> h/sett</span></td>
                                 <td class="text-nowrap">
-                                    <a href="admin.php?access=verified&azione=EDIT_VIEW&id=<?= $r['id'] ?>"
+                                    <a href="admin.php?azione=EDIT_VIEW&id=<?= $r['id'] ?>"
                                        class="btn btn-sm btn-warning">
                                         <i class="fas fa-pen me-1"></i>Modifica
                                     </a>
-                                    <a href="admin.php?access=verified&azione=DELETE&id=<?= $r['id'] ?>"
+                                    <a href="admin.php?azione=DELETE&id=<?= $r['id'] ?>"
                                        class="btn btn-sm btn-danger ms-1"
                                        onclick="return confirm('Vuoi eliminare <?= htmlspecialchars($r['nome'] . ' ' . $r['cognome'], ENT_QUOTES) ?>?')">
                                         <i class="fas fa-trash me-1"></i>Elimina
