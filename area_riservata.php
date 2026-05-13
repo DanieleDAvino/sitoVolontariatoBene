@@ -1,13 +1,13 @@
 <?php
 session_start();
 
-// Solo utenti normali autenticati possono accedere
+//solo utenti normali possono accedere
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] !== 'utente') {
     header('Location: accesso.html');
     exit;
 }
 
-// Legge i dati dalla sessione (nessuna query al DB necessaria)
+//legge dati sessione
 $nome    = $_SESSION['utente_nome'];
 $cognome = $_SESSION['utente_cognome'];
 $email   = $_SESSION['utente_email'];
@@ -56,7 +56,6 @@ $areaLabel = $AREA_LABEL[$area] ?? $area;
                         </a>
                     </li>
                     <li class="nav-item">
-                        <!-- logout.php distrugge la sessione -->
                         <a href="logout.php" class="nav-link text-warning">
                             <i class="fas fa-sign-out-alt me-1"></i>Logout
                         </a>
@@ -77,14 +76,14 @@ $areaLabel = $AREA_LABEL[$area] ?? $area;
                         <i class="fas fa-user-circle text-primary me-2"></i>Area Riservata
                     </h1>
 
-                    <!-- Benvenuto -->
+                    //bentrornato...
                     <div class="alert alert-success border-0 shadow-sm mb-4">
                         <i class="fas fa-check-circle me-2"></i>
                         Bentornato/a, <strong><?= htmlspecialchars($nome . ' ' . $cognome) ?></strong>!
                         Sei correttamente autenticato/a.
                     </div>
 
-                    <!-- Riepilogo dati dalla sessione -->
+                    //riepilogo dati sessione
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-primary text-white">
                             <i class="fas fa-id-card me-2"></i>I tuoi dati (dalla sessione)
@@ -123,7 +122,7 @@ $areaLabel = $AREA_LABEL[$area] ?? $area;
                         </div>
                     </div>
 
-                    <!-- Link utili -->
+                   
                     <div class="card border-0 shadow-sm">
                         <div class="card-header bg-light">
                             <i class="fas fa-link me-2"></i>Link utili

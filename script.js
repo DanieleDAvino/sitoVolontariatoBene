@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-    // ══════════════════════════════════════════════════════════════════
-    // 1. LEGGE LA SESSIONE E PERSONALIZZA LA NAVBAR
-    // ══════════════════════════════════════════════════════════════════
+    //legge la sessione e personalizza in base a chi sei
     aggiornaNavbar();
 
     async function aggiornaNavbar() {
@@ -17,11 +15,11 @@ document.addEventListener("DOMContentLoaded", function() {
             const navLogout        = document.getElementById('nav-logout');
             const navNomeUtente    = document.getElementById('nav-nome-utente');
 
-            // Esci se gli elementi non esistono (pagine diverse da index.html)
+            //esci se gli elementi non esistono
             if (!navRegistrazione) return;
 
             if (!sessione.loggato) {
-                // ── Visitatore anonimo ────────────────────────────────────────
+                //non loggato
                 navRegistrazione.classList.remove('d-none');
                 navAccesso.classList.remove('d-none');
                 navAreaRiservata.classList.add('d-none');
@@ -29,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 navLogout.classList.add('d-none');
 
             } else if (sessione.ruolo === 'utente') {
-                // ── Utente loggato ────────────────────────────────────────────
+                //utente normale loggato
                 navRegistrazione.classList.add('d-none');
                 navAccesso.classList.add('d-none');
                 navAreaRiservata.classList.remove('d-none');
@@ -38,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (navNomeUtente) navNomeUtente.textContent = 'Ciao, ' + sessione.nome + '!';
 
             } else if (sessione.ruolo === 'admin') {
-                // ── Admin loggato ─────────────────────────────────────────────
+                //admin loggato
                 navRegistrazione.classList.add('d-none');
                 navAccesso.classList.add('d-none');
                 navAreaRiservata.classList.add('d-none');
@@ -47,15 +45,13 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
         } catch (e) {
-            // sessione.php non raggiungibile: navbar rimane com'è
+            //sessione.php non raggiungibile
             console.warn('Impossibile leggere la sessione:', e);
         }
     }
 
 
-    // ══════════════════════════════════════════════════════════════════
-    // 2. CARICAMENTO DINAMICO DEI CONTENUTI
-    // ══════════════════════════════════════════════════════════════════
+    //caricamento dinamico dei contenuti
     const contentContainer = document.getElementById('content-container');
     if (contentContainer) {
         loadContent('introduzione.html');
@@ -63,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 const href = this.getAttribute('href');
-                // I link .php (admin, area_riservata, logout) navigano normalmente
                 if (href && href.endsWith('.php')) return;
 
                 e.preventDefault();
@@ -90,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (url === 'registrazione.html') initRegistrationForm();
                 if (url === 'accesso.html')       initLoginForm();
 
-                // image-card
+                
                 document.querySelectorAll('.image-card').forEach(card => {
                     card.addEventListener('click', function(e) {
                         e.preventDefault();
@@ -103,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                 });
 
-                // bottoni con href .html
+                
                 document.querySelectorAll('.btn[href]').forEach(btn => {
                     if (btn.type === 'submit' || btn.closest('form')) return;
                     const target = btn.getAttribute('href');
@@ -122,9 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    // ══════════════════════════════════════════════════════════════════
-    // 3. FORM REGISTRAZIONE
-    // ══════════════════════════════════════════════════════════════════
+    //registrazione
     function initRegistrationForm() {
         const form = document.getElementById('registration-form');
         if (!form) return;
@@ -198,9 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    // ══════════════════════════════════════════════════════════════════
-    // 4. FORM LOGIN
-    // ══════════════════════════════════════════════════════════════════
+    //login
     function initLoginForm() {
         const form = document.getElementById('login-form');
         if (!form) return;

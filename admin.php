@@ -1,7 +1,6 @@
 <?php
-session_start(); // ← legge la sessione
+session_start(); 
 
-// ── Config DB ──────────────────────────────────────────────────────────────────
 $db_host = 'localhost';
 $db_name = 'volontariato';
 $db_user = 'root';
@@ -14,8 +13,7 @@ try {
     die('Errore connessione DB: ' . $e->getMessage());
 }
 
-// ── Controllo accesso tramite sessione ─────────────────────────────────────────
-// Se sta arrivando dal form di login, verifica le credenziali
+//controllo accesso tramite sessione e se sta arrivando dal form di login, verifica le credenziali
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['azione'] ?? '') === 'LOGIN') {
     $email = trim($_POST['email'] ?? '');
     $psswd = $_POST['psswd'] ?? '';
@@ -34,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['azione'] ?? '') === 'LOGIN
         exit;
     }
 
-    // Credenziali ok → salva in sessione e redirect alla dashboard
+    //controlla le credenziali e se sono giuste lo manda nella pagina
     $_SESSION['ruolo']       = 'admin';
     $_SESSION['admin_id']    = $admin['id'];
     $_SESSION['admin_email'] = $admin['email'];
@@ -43,13 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['azione'] ?? '') === 'LOGIN
     exit;
 }
 
-// Nessuna sessione admin attiva → torna al login
+// se nessuna sessione admin attiva torna al login
 if (!isset($_SESSION['ruolo']) || $_SESSION['ruolo'] !== 'admin') {
     header('Location: admin-login.php');
     exit;
 }
 
-// ── Da qui in poi: accesso verificato tramite sessione ─────────────────────────
 
 function pulisci($dato) {
     return htmlspecialchars(trim($dato ?? ''), ENT_QUOTES, 'UTF-8');
@@ -67,7 +64,7 @@ $AREA_LABEL = [
     'altro'          => 'Altro',
 ];
 
-// ── CRUD ──────────────────────────────────────────────────────────────────────
+//operazioni crud
 switch ($azione) {
 
     case 'UPDATE':
@@ -110,7 +107,7 @@ switch ($azione) {
         break;
 }
 
-// ── Carica tutti i volontari (o cerca per ID) ─────────────────────────────────
+//carica tutti gli utenti della tabella registrazioni (o ricerca per id)
 if ($azione === 'READ' && isset($_GET['id_ricerca']) && $_GET['id_ricerca'] !== '') {
     $stmt = $pdo->prepare("SELECT * FROM registrazioni WHERE id = :id");
     $stmt->execute([':id' => (int)$_GET['id_ricerca']]);
@@ -182,7 +179,6 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header>
     <div class="container-fluid">
         <div class="logo text-center py-3">
@@ -219,7 +215,6 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
     </nav>
 </header>
 
-<!-- ── MAIN ── -->
 <main class="py-4">
     <div class="container">
         <div class="content">
@@ -239,7 +234,6 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                 </div>
             <?php endif; ?>
 
-            <!-- Stat boxes -->
             <?php
                 $dispCounts = array_count_values(array_column(
                     $pdo->query("SELECT disponibilita FROM registrazioni")->fetchAll(PDO::FETCH_ASSOC),
@@ -290,7 +284,6 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                 </div>
             </div>
 
-            <!-- Form modifica -->
             <?php if ($volontario_da_modificare): ?>
             <div class="card border-primary shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
@@ -436,7 +429,7 @@ $totale = count($pdo->query("SELECT id FROM registrazioni")->fetchAll());
                 </table>
             </div>
 
-        </div><!-- /content -->
+        </div>
     </div>
 </main>
 

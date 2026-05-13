@@ -39,7 +39,7 @@
                         <a href="primo-soccorso.html" class="nav-link" data-section="primo-soccorso">Primo Soccorso e Emergenze</a>
                     </li>
 
-                    <!-- Visibili solo se NON loggato -->
+                    <!-- se non loggato -->
                     <li class="nav-item" id="nav-registrazione">
                         <a href="registrazione.html" class="nav-link" data-section="registrazione">Registrazione</a>
                     </li>
@@ -47,7 +47,7 @@
                         <a href="accesso.html" class="nav-link" data-section="accesso">Accesso</a>
                     </li>
 
-                    <!-- Visibili solo se loggato come UTENTE -->
+                    <!-- se sei utente -->
                     <li class="nav-item d-none" id="nav-area-riservata">
                         <a href="area_riservata.php" class="nav-link">
                             <i class="fas fa-user-circle me-1"></i>
@@ -55,14 +55,14 @@
                         </a>
                     </li>
 
-                    <!-- Visibili solo se loggato come ADMIN -->
+                    <!-- admin -->
                     <li class="nav-item d-none" id="nav-admin">
                         <a href="admin.php" class="nav-link text-warning">
                             <i class="fas fa-user-shield me-1"></i>Pannello Admin
                         </a>
                     </li>
 
-                    <!-- Visibili solo se loggato (utente O admin) -->
+                    <!-- se sei loggato o admin o utenet -->
                     <li class="nav-item d-none" id="nav-logout">
                         <a href="logout.php" class="nav-link text-warning">
                             <i class="fas fa-sign-out-alt me-1"></i>Logout

@@ -1,5 +1,5 @@
 <?php
-session_start(); // ← avvia la sessione
+session_start(); 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die('Accesso non autorizzato');
@@ -18,7 +18,7 @@ if (empty($email) || empty($psswd)) {
     echo json_encode(['successo' => false, 'messaggio' => 'Email e password sono obbligatori']);
     exit;
 }
-
+//connessione al db
 $db_host = 'localhost';
 $db_name = 'volontariato';
 $db_user = 'root';
@@ -32,13 +32,13 @@ try {
     );
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // ── Controlla prima se è admin ──────────────────────────────────────────────
+    // controllo admin
     $stmtAdmin = $pdo->prepare("SELECT * FROM admin WHERE email = :email");
     $stmtAdmin->execute([':email' => $email]);
     $admin = $stmtAdmin->fetch(PDO::FETCH_ASSOC);
 
     if ($admin && password_verify($psswd, $admin['psswd'])) {
-        // Salva i dati admin in sessione
+        //salva i dati admin in sessione
         $_SESSION['ruolo']      = 'admin';
         $_SESSION['admin_id']   = $admin['id'];
         $_SESSION['admin_email']= $admin['email'];
@@ -51,7 +51,7 @@ try {
         exit;
     }
 
-    // ── Cerca l'utente normale ──────────────────────────────────────────────────
+    //se non è admin cerca l'utente normale
     $stmt = $pdo->prepare("SELECT * FROM registrazioni WHERE email = :email");
     $stmt->execute([':email' => $email]);
     $utente = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -66,7 +66,7 @@ try {
         exit;
     }
 
-    // Salva i dati utente in sessione
+    //salva i dati utente in sessione
     $_SESSION['ruolo']          = 'utente';
     $_SESSION['utente_id']      = $utente['id'];
     $_SESSION['utente_nome']    = $utente['nome'];
@@ -83,7 +83,6 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    // Nessun dettaglio esposto all'utente
     error_log('DB error in accesso.php: ' . $e->getMessage());
     echo json_encode(['successo' => false, 'messaggio' => 'Errore del server. Riprova più tardi.']);
 }
